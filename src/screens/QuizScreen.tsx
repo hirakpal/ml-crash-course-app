@@ -36,7 +36,7 @@ export function QuizScreen({ lesson, bestScore, onSaveScore, onBackToLesson }: {
               value={answers[question.id]?.toString() ?? ''}
             >
               {question.options.map((option, optionIndex) => (
-                <View key={option} style={styles.optionRow}>
+                <View key={`${question.id}-${optionIndex}`} style={styles.optionRow}>
                   <RadioButton value={optionIndex.toString()} />
                   <Text style={styles.optionLabel}>{option}</Text>
                 </View>

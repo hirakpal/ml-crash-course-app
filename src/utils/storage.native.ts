@@ -40,40 +40,37 @@ export async function initializeStorage() {
     );
   `);
 
-  const row = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM lessons');
-  if ((row?.count ?? 0) === 0) {
-    for (const lesson of CURRICULUM_SEED) {
-      await db.runAsync(
-        `INSERT INTO lessons (
-          id, module_id, module_title, title, summary, duration_minutes, order_index,
-          prerequisite_lesson_ids, visualization_ids, sections_json, quiz_json, resources_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          lesson.id,
-          lesson.moduleId,
-          lesson.moduleTitle,
-          lesson.title,
-          lesson.summary,
-          lesson.durationMinutes,
-          lesson.orderIndex,
-          JSON.stringify(lesson.prerequisiteLessonIds),
-          JSON.stringify(lesson.visualizationIds),
-          JSON.stringify(lesson.sections),
-          JSON.stringify(lesson.quiz),
-          JSON.stringify(lesson.resources),
-        ]
-      );
-      await db.runAsync(
-        'INSERT OR IGNORE INTO lesson_progress (lesson_id, completed, best_score, completed_at) VALUES (?, 0, 0, NULL)',
-        [lesson.id]
-      );
-    }
-
+  for (const lesson of CURRICULUM_SEED) {
     await db.runAsync(
-      'INSERT OR IGNORE INTO remote_course_outline (source_url, headings_json, snippet, synced_at) VALUES (?, ?, ?, ?)',
-      [REMOTE_COURSE_URL, JSON.stringify([]), 'Offline curriculum ready. Pull remote headings when network access is available.', new Date(0).toISOString()]
+      `INSERT OR IGNORE INTO lessons (
+        id, module_id, module_title, title, summary, duration_minutes, order_index,
+        prerequisite_lesson_ids, visualization_ids, sections_json, quiz_json, resources_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        lesson.id,
+        lesson.moduleId,
+        lesson.moduleTitle,
+        lesson.title,
+        lesson.summary,
+        lesson.durationMinutes,
+        lesson.orderIndex,
+        JSON.stringify(lesson.prerequisiteLessonIds),
+        JSON.stringify(lesson.visualizationIds),
+        JSON.stringify(lesson.sections),
+        JSON.stringify(lesson.quiz),
+        JSON.stringify(lesson.resources),
+      ]
+    );
+    await db.runAsync(
+      'INSERT OR IGNORE INTO lesson_progress (lesson_id, completed, best_score, completed_at) VALUES (?, 0, 0, NULL)',
+      [lesson.id]
     );
   }
+
+  await db.runAsync(
+    'INSERT OR IGNORE INTO remote_course_outline (source_url, headings_json, snippet, synced_at) VALUES (?, ?, ?, ?)',
+    [REMOTE_COURSE_URL, JSON.stringify([]), 'Offline curriculum ready. Pull remote headings when network access is available.', new Date(0).toISOString()]
+  );
 }
 
 type LessonRow = {

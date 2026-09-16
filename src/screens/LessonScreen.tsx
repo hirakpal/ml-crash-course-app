@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Card, Chip, Divider, Text } from 'react-native-paper';
 import { Lesson } from '../types/course';
 
@@ -21,8 +21,8 @@ export function LessonScreen({ lesson, completed, onComplete, onOpenQuiz, onOpen
         </Card.Content>
       </Card>
 
-      {lesson.sections.map((section) => (
-        <Card key={section.heading} mode="outlined">
+      {lesson.sections.map((section, index) => (
+        <Card key={`${lesson.id}-section-${index}`} mode="outlined">
           <Card.Content style={styles.sectionContent}>
             <Text variant="titleMedium">{section.heading}</Text>
             <Text variant="bodyMedium">{section.body}</Text>
@@ -44,7 +44,7 @@ export function LessonScreen({ lesson, completed, onComplete, onOpenQuiz, onOpen
           <Divider />
           {lesson.resources.map((resource) => (
             <View key={resource.url} style={styles.resourceRow}>
-              <Text variant="bodyMedium">{resource.title}</Text>
+              <Button compact onPress={() => void Linking.openURL(resource.url)}>{resource.title}</Button>
               <Chip compact>{resource.type}</Chip>
             </View>
           ))}

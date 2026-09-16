@@ -17,8 +17,12 @@ function readJson<T>(key: string, fallback: T): T {
     return fallback;
   }
 
-  const value = localStorage.getItem(key);
-  return value ? (JSON.parse(value) as T) : fallback;
+  try {
+    const value = localStorage.getItem(key);
+    return value ? (JSON.parse(value) as T) : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function writeJson<T>(key: string, value: T) {
@@ -26,7 +30,11 @@ function writeJson<T>(key: string, value: T) {
     return;
   }
 
-  localStorage.setItem(key, JSON.stringify(value));
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignore storage write failures so the app remains usable in restricted browsers.
+  }
 }
 
 export async function initializeStorage() {
@@ -50,7 +58,7 @@ export async function initializeStorage() {
 }
 
 export async function getLessons(): Promise<Lesson[]> {
-  return readJson<Lesson[]>(LESSONS_KEY, CURRICULUM_SEED).sort((a, b) => a.orderIndex - b.orderIndex);
+  return [...readJson<Lesson[]>(LESSONS_KEY, CURRICULUM_SEED)].sort((a, b) => a.orderIndex - b.orderIndex);
 }
 
 export async function getProgress(): Promise<Record<string, LessonProgress>> {
@@ -58,15 +66,17 @@ export async function getProgress(): Promise<Record<string, LessonProgress>> {
 }
 
 export async function saveLessonProgress(lessonId: string, updates: Partial<LessonProgress>) {
-  const progress = await getProgress();
-  const current = progress[lessonId] ?? { lessonId, completed: false, bestScore: 0 };
-  progress[lessonId] = {
+  const latestProgress = readJson<Record<string, LessonProgress>>(PROGRESS_KEY, {});
+  const current = latestProgress[lessonId] ?? { lessonId, completed: false, bestScore: 0 };
+  const completed = updates.completed ?? current.completed;
+
+  latestProgress[lessonId] = {
     lessonId,
-    completed: updates.completed ?? current.completed,
+    completed,
     bestScore: Math.max(updates.bestScore ?? 0, current.bestScore),
-    completedAt: updates.completed ? updates.completedAt ?? current.completedAt ?? new Date().toISOString() : current.completedAt,
+    completedAt: completed ? updates.completedAt ?? current.completedAt ?? new Date().toISOString() : undefined,
   };
-  writeJson(PROGRESS_KEY, progress);
+  writeJson(PROGRESS_KEY, latestProgress);
 }
 
 export async function getRemoteOutline(): Promise<RemoteCourseOutline | null> {

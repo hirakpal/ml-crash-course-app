@@ -6,9 +6,23 @@ export function StepControl({ label, value, onDecrease, onIncrease }: { label: s
     <View style={styles.container}>
       <Text variant="bodyMedium">{label}</Text>
       <View style={styles.controls}>
-        <Button mode="outlined" compact onPress={onDecrease}>-</Button>
+        <Button
+          mode="outlined"
+          compact
+          onPress={onDecrease}
+          accessibilityLabel={`Decrease ${label}`}
+        >
+          -
+        </Button>
         <Text variant="titleMedium">{value.toFixed(2)}</Text>
-        <Button mode="outlined" compact onPress={onIncrease}>+</Button>
+        <Button
+          mode="outlined"
+          compact
+          onPress={onIncrease}
+          accessibilityLabel={`Increase ${label}`}
+        >
+          +
+        </Button>
       </View>
     </View>
   );

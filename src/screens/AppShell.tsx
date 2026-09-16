@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { Appbar, BottomNavigation, Text } from 'react-native-paper';
+import { Appbar, BottomNavigation } from 'react-native-paper';
 import { useAppContext } from '../redux/AppContext';
 import { HomeScreen } from './HomeScreen';
 import { LessonScreen } from './LessonScreen';
@@ -49,11 +49,19 @@ export function AppShell() {
       <View style={styles.content}>{renderContent()}</View>
       <BottomNavigation.Bar
         navigationState={{
-          index: route.name === 'home' ? 0 : route.name === 'visualizations' ? 2 : 1,
+          index:
+            route.name === 'home'
+              ? 0
+              : route.name === 'lesson'
+                ? 1
+                : route.name === 'quiz'
+                  ? 2
+                  : 3,
           routes: [
             { key: 'home', title: 'Home', focusedIcon: 'home' },
             { key: 'lesson', title: 'Lesson', focusedIcon: 'book-open-page-variant' },
-            { key: 'visuals', title: 'Visuals', focusedIcon: 'chart-bubble' },
+            { key: 'quiz', title: 'Quiz', focusedIcon: 'help-circle' },
+            { key: 'visualizations', title: 'Visuals', focusedIcon: 'chart-bubble' },
           ],
         }}
         onTabPress={({ route: pressedRoute }) => {
@@ -63,7 +71,11 @@ export function AppShell() {
             if (selectedLesson) {
               openLesson(selectedLesson.id);
             }
-          } else {
+          } else if (pressedRoute.key === 'quiz') {
+            if (selectedLesson) {
+              openQuiz(selectedLesson.id);
+            }
+          } else if (pressedRoute.key === 'visualizations') {
             openVisualizations(selectedLesson?.id);
           }
         }}

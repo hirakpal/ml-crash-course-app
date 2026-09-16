@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
@@ -58,16 +58,16 @@ export function NeuralNetworkFlowVisualizer() {
           ))}
 
           {positions.inputs.map((y, index) => (
-            <>
-              <Circle key={`input-node-${index}`} cx={40} cy={y} r={18} fill="#1A73E8" />
+            <Fragment key={`input-fragment-${index}`}>
+              <Circle cx={40} cy={y} r={18} fill="#1A73E8" />
               <SvgText x={40} y={y + 4} fontSize="10" fill="#fff" textAnchor="middle">{[featureA, featureB][index].toFixed(2)}</SvgText>
-            </>
+            </Fragment>
           ))}
           {positions.hidden.map((y, index) => (
-            <>
-              <Circle key={`hidden-node-${index}`} cx={150} cy={y} r={18} fill="#7C4DFF" />
+            <Fragment key={`hidden-fragment-${index}`}>
+              <Circle cx={150} cy={y} r={18} fill="#7C4DFF" />
               <SvgText x={150} y={y + 4} fontSize="10" fill="#fff" textAnchor="middle">{hidden[index].toFixed(2)}</SvgText>
-            </>
+            </Fragment>
           ))}
           <Circle cx={260} cy={positions.output[0]} r={20} fill="#146C2E" />
           <SvgText x={260} y={positions.output[0] + 4} fontSize="10" fill="#fff" textAnchor="middle">{output.toFixed(2)}</SvgText>
